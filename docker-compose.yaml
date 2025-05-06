@@ -1,0 +1,53 @@
+name: docmost
+services:
+  server:
+    image: docmost/docmost:latest
+    container_name: docmost-server
+    hostname: docmost-server
+    restart: always
+    pull_policy: always
+    environment:
+      APP_URL: 'http://${BASE_HOST_NAME:-localhost:3000}'
+      APP_SECRET: '${APP_JWT_TOKEN:-7a5de017cdbec2d8c60e9381fde90c7c}'
+      DATABASE_URL: 'postgresql://docmost:6b716daa2fe6a317f3f377ae7212f82b@db:5432/docmost?schema=public'
+      REDIS_URL: 'redis://redis:6379'
+    ports:
+      - '127.0.0.1:58064:3000'
+    volumes:
+      - /var/lib/srv/$USER/docker/docmost/docmost/latest/rootfs/data/docmost:/app/data/storage
+    depends_on:
+      - db
+      - redis
+    networks:
+      - docmost
+
+  db:
+    image: postgres:16-alpine
+    container_name: docmost-db
+    hostname: docmost-db
+    restart: always
+    pull_policy: always
+    environment:
+      POSTGRES_DB: docmost
+      POSTGRES_USER: docmost
+      POSTGRES_PASSWORD: 6b716daa2fe6a317f3f377ae7212f82b
+    volumes:
+      - /var/lib/srv/$USER/docker/docmost/docmost/latest/rootfs/data/db/postgres:/var/lib/postgresql/data
+    networks:
+      - docmost
+
+  redis:
+    image: redis:7.2-alpine
+    container_name: docmost-redis
+    hostname: docmost-redis
+    restart: always
+    pull_policy: always
+    volumes:
+      - /var/lib/srv/$USER/docker/docmost/docmost/latest/rootfs/data/db/redis:/data
+    networks:
+      - docmost
+
+networks:
+  docmost:
+    name: docmost
+    external: false
