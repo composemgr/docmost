@@ -1,16 +1,26 @@
+# nginx proxy address - http://172.17.0.1:58064
+
 name: docmost
+x-logging: &default-logging
+  options:
+    max-size: '5m'
+    max-file: '1'
+  driver: json-file
+
 services:
-  server:
+  app:
     image: docmost/docmost:latest
-    container_name: docmost-server
-    hostname: docmost-server
+    container_name: docmost-app
+    hostname: ${BASE_HOST_NAME:-$HOSTNAME}
     restart: always
     pull_policy: always
+    logging: *default-logging
     environment:
-      APP_URL: 'http://${BASE_HOST_NAME:-localhost:3000}'
-      APP_SECRET: '${APP_JWT_TOKEN:-7a5de017cdbec2d8c60e9381fde90c7c}'
-      DATABASE_URL: 'postgresql://docmost:6b716daa2fe6a317f3f377ae7212f82b@db:5432/docmost?schema=public'
-      REDIS_URL: 'redis://redis:6379'
+      - TZ=${TZ:-America/New_York}
+      - 'REDIS_URL=redis://redis:6379'
+      - 'APP_URL=http://${BASE_HOST_NAME:-$HOSTNAME}'
+      - 'APP_SECRE=${APP_JWT_TOKEN:-7a5de017cdbec2d8c60e9381fde90c7c}'
+      - 'DATABASE_URL=postgresql://postgres:pJ6CZIOlt8eP1qA1gqMiL3r4JRUfYGYy@db:5432/docmost?schema=public'
     ports:
       - '127.0.0.1:58064:3000'
     volumes:
@@ -27,12 +37,14 @@ services:
     hostname: docmost-db
     restart: always
     pull_policy: always
+    logging: *default-logging
     environment:
-      POSTGRES_DB: docmost
-      POSTGRES_USER: docmost
-      POSTGRES_PASSWORD: 6b716daa2fe6a317f3f377ae7212f82b
+      - TZ=${TZ:-America/New_York}
+      - POSTGRES_DB=docmost
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=pJ6CZIOlt8eP1qA1gqMiL3r4JRUfYGYy
     volumes:
-      - /var/lib/srv/$USER/docker/docmost/docmost/latest/rootfs/data/db/postgres:/var/lib/postgresql/data
+      - /var/lib/srv/$USER/docker/db/postgres/docmost:/var/lib/postgresql/data
     networks:
       - docmost
 
@@ -42,8 +54,11 @@ services:
     hostname: docmost-redis
     restart: always
     pull_policy: always
+    logging: *default-logging
+    environment:
+      - TZ=${TZ:-America/New_York}
     volumes:
-      - /var/lib/srv/$USER/docker/docmost/docmost/latest/rootfs/data/db/redis:/data
+      - /var/lib/srv/$USER/docker/db/redis/docmost:/data
     networks:
       - docmost
 
