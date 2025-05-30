@@ -17,14 +17,14 @@ services:
     logging: *default-logging
     environment:
       - TZ=${TZ:-America/New_York}
-      - 'REDIS_URL=redis://redis:6379'
-      - 'APP_URL=http://${BASE_HOST_NAME:-$HOSTNAME}'
+      - 'REDIS_URL=redis://docmost-redis:6379'
+      - 'APP_URL=https://${BASE_HOST_NAME:-$HOSTNAME}'
       - 'APP_SECRE=${APP_JWT_TOKEN:-7a5de017cdbec2d8c60e9381fde90c7c}'
-      - 'DATABASE_URL=postgresql://postgres:pJ6CZIOlt8eP1qA1gqMiL3r4JRUfYGYy@db:5432/docmost?schema=public'
+      - 'DATABASE_URL=postgresql://postgres:pJ6CZIOlt8eP1qA1gqMiL3r4JRUfYGYy@docmost-db:5432/docmost?schema=public'
     ports:
       - '127.0.0.1:58064:3000'
     volumes:
-      - /var/lib/srv/$USER/docker/docmost/docmost/latest/rootfs/data/docmost:/app/data/storage
+      - '/var/lib/srv/$USER/docker/docmost/rootfs/data/docmost:/app/data/storage'
     depends_on:
       - db
       - redis
@@ -44,7 +44,7 @@ services:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=pJ6CZIOlt8eP1qA1gqMiL3r4JRUfYGYy
     volumes:
-      - /var/lib/srv/$USER/docker/db/postgres/docmost:/var/lib/postgresql/data
+      - '/var/lib/srv/$USER/databases/postgres/docmost:/var/lib/postgresql/data'
     networks:
       - docmost
 
@@ -58,7 +58,7 @@ services:
     environment:
       - TZ=${TZ:-America/New_York}
     volumes:
-      - /var/lib/srv/$USER/docker/db/redis/docmost:/data
+      - '/var/lib/srv/$USER/databases/redis/docmost:/data'
     networks:
       - docmost
 
