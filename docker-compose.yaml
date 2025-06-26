@@ -1,0 +1,68 @@
+# nginx proxy address - http://172.17.0.1:58064
+
+name: docmost
+x-logging: &default-logging
+  options:
+    max-size: '5m'
+    max-file: '1'
+  driver: json-file
+
+services:
+  app:
+    image: docmost/docmost:latest
+    container_name: docmost-app
+    hostname: ${BASE_HOST_NAME:-$HOSTNAME}
+    restart: always
+    pull_policy: always
+    logging: *default-logging
+    environment:
+      - TZ=${TZ:-America/New_York}
+      - 'REDIS_URL=redis://docmost-redis:6379'
+      - 'APP_URL=https://${BASE_HOST_NAME:-$HOSTNAME}'
+      - 'APP_SECRE=${APP_JWT_TOKEN:-7a5de017cdbec2d8c60e9381fde90c7c}'
+      - 'DATABASE_URL=postgresql://postgres:pJ6CZIOlt8eP1qA1gqMiL3r4JRUfYGYy@docmost-db:5432/docmost?schema=public'
+    ports:
+      - '127.0.0.1:58064:3000'
+    volumes:
+      - './rootfs/data/docmost:/app/data/storage'
+    depends_on:
+      - db
+      - redis
+    networks:
+      - docmost
+
+  db:
+    image: postgres:16-alpine
+    container_name: docmost-db
+    hostname: docmost-db
+    restart: always
+    pull_policy: always
+    logging: *default-logging
+    environment:
+      - TZ=${TZ:-America/New_York}
+      - POSTGRES_DB=docmost
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=pJ6CZIOlt8eP1qA1gqMiL3r4JRUfYGYy
+    volumes:
+      - './rootfs/db/postgres:/var/lib/postgresql/data'
+    networks:
+      - docmost
+
+  redis:
+    image: redis:7.2-alpine
+    container_name: docmost-redis
+    hostname: docmost-redis
+    restart: always
+    pull_policy: always
+    logging: *default-logging
+    environment:
+      - TZ=${TZ:-America/New_York}
+    volumes:
+      - './rootfs/db/redis:/data'
+    networks:
+      - docmost
+
+networks:
+  docmost:
+    name: docmost
+    external: false
