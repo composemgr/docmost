@@ -44,7 +44,7 @@ services:
       POSTGRES_USER: ${DB_ADMIN_NAME:-postgres}
       POSTGRES_PASSWORD: ${DB_ADMIN_PASS:-pJ6CZIOlt8eP1qA1gqMiL3r4JRUfYGYy}
     volumes:
-      - './rootfs/db/postgres/docmost:/var/lib/postgresql/data'
+      - './rootfs/data/db/postgres/docmost:/var/lib/postgresql/data'
     networks:
       - docmost
 
@@ -58,7 +58,7 @@ services:
     environment:
       TZ: ${TZ:-America/New_York}
     volumes:
-      - './rootfs/db/redis/docmost:/data'
+      - './rootfs/data/db/redis/docmost:/data'
     networks:
       - docmost
 
