@@ -1,27 +1,37 @@
 ## 👋 Welcome to docmost 🚀
 
-docmost - Self-hosted Docker Compose deployment
+Open-source collaborative wiki and documentation software
 
 ## 📋 Description
 
-Docmost is a containerized service deployed using Docker Compose. This setup provides a complete, production-ready deployment with proper security defaults, logging, and configuration management.
+Open-source collaborative wiki and documentation software
+
+## 🚀 Services
+
+- **app**: docmost/docmost:latest
+
+### Infrastructure Components
+
+- **db**: Postgres database
+- **redis**: Redis database
+
 
 ## 📦 Installation
 
-### Using curl
-```shell
-curl -q -LSsf "https://raw.githubusercontent.com/composemgr/docmost/main/docker-compose.yaml" | docker compose -f - up -d
+### Option 1: Quick Install
+```bash
+curl -q -LSsf "https://raw.githubusercontent.com/composemgr/docmost/main/docker-compose.yaml" -o compose.yml
 ```
 
-### Using git
-```shell
+### Option 2: Git Clone
+```bash
 git clone "https://github.com/composemgr/docmost" ~/.local/srv/docker/docmost
 cd ~/.local/srv/docker/docmost
 docker compose up -d
 ```
 
-### Using composemgr
-```shell
+### Option 3: Using composemgr
+```bash
 composemgr install docmost
 ```
 
@@ -31,9 +41,11 @@ composemgr install docmost
 
 ```shell
 TZ=America/New_York
-BASE_HOST_NAME=${HOSTNAME}
-BASE_DOMAIN_NAME=
+APP_JWT_TOKEN=changeme_app_secret_min_32_chars
+DB_ADMIN_PASS=pJ6CZIOlt8eP1qA1gqMiL3r4JRUfYGYy
 ```
+
+See `docker-compose.yaml` for complete list of configurable options.
 
 ## 🌐 Access
 
@@ -41,43 +53,47 @@ BASE_DOMAIN_NAME=
 
 ## 📂 Volumes
 
-- `./rootfs/config/docmost` - Configuration files
-- `./rootfs/data/docmost` - Application data
+- `./rootfs/data/docmost` - Data storage
+- `./rootfs/data/db/postgres/docmost` - Data storage
+- `./rootfs/data/db/redis/docmost` - Data storage
 
 ## 🔐 Security
 
-- Change default passwords after first login
-- Use HTTPS via reverse proxy in production
-- Configure authentication as needed
+- Change all default passwords before deploying to production
+- Use strong secrets for all authentication tokens
+- Configure HTTPS using a reverse proxy (nginx, traefik, caddy)
+- Regularly update Docker images for security patches
+- Backup your data regularly
 
 ## 🔍 Logging
 
 ```shell
-docker compose logs -f
+docker compose logs -f app
 ```
 
 ## 🛠️ Management
 
-### Start services
-```shell
+```bash
+# Start services
 docker compose up -d
-```
 
-### Stop services
-```shell
+# Stop services
 docker compose down
-```
 
-### Update images
-```shell
+# Update to latest images
 docker compose pull && docker compose up -d
+
+# View logs
+docker compose logs -f
+
+# Restart services
+docker compose restart
 ```
 
 ## 📋 Requirements
 
 - Docker Engine 20.10+
 - Docker Compose V2+
-- Sufficient disk space for data and logs
 
 ## 🤝 Author
 
