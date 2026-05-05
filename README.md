@@ -53,9 +53,9 @@ See `docker-compose.yaml` for complete list of configurable options.
 
 ## 📂 Volumes
 
-- `./rootfs/data/docmost` - Data storage
-- `./rootfs/data/db/postgres/docmost` - Data storage
-- `./rootfs/data/db/redis/docmost` - Data storage
+- `./volumes/data/docmost` - Data storage
+- `./volumes/data/db/postgres/docmost` - Data storage
+- `./volumes/data/db/redis/docmost` - Data storage
 
 ## 🔐 Security
 
