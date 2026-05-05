@@ -24,7 +24,7 @@ services:
     ports:
       - '172.17.0.1:58064:3000'
     volumes:
-      - './rootfs/data/docmost:/app/data/storage'
+      - './volumes/data/docmost:/app/data/storage'
     depends_on:
       - db
       - redis
@@ -44,7 +44,7 @@ services:
       POSTGRES_USER: ${DB_ADMIN_NAME:-postgres}
       POSTGRES_PASSWORD: ${DB_ADMIN_PASS:-pJ6CZIOlt8eP1qA1gqMiL3r4JRUfYGYy}
     volumes:
-      - './rootfs/data/db/postgres/docmost:/var/lib/postgresql/data'
+      - './volumes/data/db/postgres/docmost:/var/lib/postgresql/data'
     networks:
       - docmost
 
@@ -58,7 +58,7 @@ services:
     environment:
       TZ: ${TZ:-America/New_York}
     volumes:
-      - './rootfs/data/db/redis/docmost:/data'
+      - './volumes/data/db/redis/docmost:/data'
     networks:
       - docmost
 
