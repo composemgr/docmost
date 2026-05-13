@@ -21,6 +21,8 @@ services:
       APP_URL: https://${BASE_HOST_NAME:-localhost}
       APP_SECRET: ${APP_SECRET_KEY:-changeme_secret_key_min_32_chars}
       DATABASE_URL: postgresql://${DB_USER_NAME:-docmost}:${DB_USER_PASS:-changeme_db_password}@docmost-db:5432/${DB_CREATE_DATABASE_NAME:-docmost}?schema=public
+      CONTAINER_NAME: docmost-app
+      HOSTNAME: ${BASE_HOST_NAME:-$HOSTNAME}
     ports:
       - "172.17.0.1:58064:3000"
     volumes:
@@ -30,6 +32,24 @@ services:
       - redis
     networks:
       - docmost
+      - proxy
+      - cloudflare
+    labels:
+      - 'traefik.enable=true'
+      - 'cloudflare.enable=true'
+      - 'traefik.docker.network=proxy'
+      - 'cloudflare.service=http://docmost-app:3000'
+      - 'cloudflare.hostname=docmost.${CLOUDFLARE_ZONE_NAME:-}'
+      - 'traefik.http.routers.docmost-app.entrypoints=http'
+      - 'traefik.http.routers.docmost-app-secure.tls=true'
+      - 'traefik.http.routers.docmost-app.rule=Host($(${BASE_HOST_NAME:-$HOSTNAME}))'
+      - 'traefik.http.middlewares.docmost-app-https-redirect.redirectscheme.scheme=https'
+      - 'traefik.http.routers.docmost-app.middlewares=docmost-app-https-redirect'
+      - 'traefik.http.routers.docmost-app-secure.entrypoints=https'
+      - 'traefik.http.routers.docmost-app-secure.rule=Host($(${BASE_HOST_NAME:-$HOSTNAME}))'
+      - 'traefik.http.routers.docmost-app-secure.tls.certresolver=cloudflare'
+      - 'traefik.http.routers.docmost-app-secure.service=docmost-app'
+      - 'traefik.http.services.docmost-app.loadbalancer.server.port=3000'
 
   db:
     image: postgres:latest
@@ -43,6 +63,7 @@ services:
       POSTGRES_DB: ${DB_CREATE_DATABASE_NAME:-docmost}
       POSTGRES_USER: ${DB_USER_NAME:-docmost}
       POSTGRES_PASSWORD: ${DB_USER_PASS:-changeme_db_password}
+      CONTAINER_NAME: docmost-db
     volumes:
       - "./volumes/data/db/postgres/docmost:/var/lib/postgresql/data"
     healthcheck:
@@ -62,6 +83,7 @@ services:
     logging: *default-logging
     environment:
       TZ: ${TZ:-America/New_York}
+      CONTAINER_NAME: docmost-redis
     volumes:
       - "./volumes/data/db/redis/docmost:/data"
     networks:
@@ -71,3 +93,7 @@ networks:
   docmost:
     name: docmost
     external: false
+  proxy:
+    external: true
+  cloudflare:
+    external: true
